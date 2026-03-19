@@ -16,6 +16,7 @@ import {
 import { useCart } from "@/contexts/cart-context";
 import { Minus, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const CartMenu = () => {
   const {
@@ -48,13 +49,17 @@ const CartMenu = () => {
   }, []);
 
   const handleOrder = async () => {
-    setAdicionando(true);
     const mesaId = numeroMesa;
     const contaId = numeroConta;
 
-    if (mesaId && contaId) {
-      await submitOrder(mesaId, contaId ?? null);
+    if (mesaId === null || contaId === null) {
+      toast.error("Selecione uma mesa e abra uma conta para enviar o pedido.");
+      return;
     }
+
+    setAdicionando(true);
+
+    await submitOrder(mesaId, contaId);
 
     setAdicionando(false);
   };
@@ -127,6 +132,7 @@ const CartMenu = () => {
           </div>
           <Button
             onClick={handleOrder}
+            disabled={adicionando}
             className="w-full p-6 bg-orange-500 hover:bg-orange-500/85"
           >
             {adicionando ? (
