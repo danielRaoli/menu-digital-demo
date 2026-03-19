@@ -25,11 +25,18 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cart, setCart] = useState<PedidoProduto[]>([]);
 
   const addToCart = (produto: Produto, quantidade = 1) => {
+    let quantidadeFinal = quantidade;
+    let itemExistente = false;
+
     setCart((prevCart) => {
       const existingItem = prevCart.find(
         (item) => item.produtoId === produto.id
       );
+
       if (existingItem) {
+        itemExistente = true;
+        quantidadeFinal = existingItem.quantidade + quantidade;
+
         return prevCart.map((item) => {
           if (item.produtoId === produto.id) {
             return { ...item, quantidade: item.quantidade + quantidade };
@@ -47,6 +54,12 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         } as PedidoProduto,
       ];
     });
+
+    toast.success(
+      itemExistente
+        ? `${produto.nome} atualizado no carrinho (${quantidadeFinal}x)`
+        : `${produto.nome} adicionado ao carrinho`
+    );
   };
 
   const removeFromCart = (id: number) => {
