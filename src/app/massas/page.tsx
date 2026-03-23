@@ -12,9 +12,11 @@ import { useEffect, useState } from "react";
 import { Produto } from "@/lib/types/produto";
 import { api } from "@/lib/axios";
 import { useCart } from "@/contexts/cart-context";
+import ProductCardSkeleton from "@/components/other-components/product-card-skeleton";
 
 const Masses = () => {
-  const [produtos, setProdutos] = useState<Produto[] | null>([]);
+  const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -24,6 +26,8 @@ const Masses = () => {
         setProdutos(response.data);
       } catch {
         console.log("Error");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -42,43 +46,49 @@ const Masses = () => {
           <div className="py-10 px-[120px]">
             <h1 className="text-white text-3xl font-semibold">MASSAS</h1>
             <div className="flex gap-5 flex-wrap">
-              {massas?.map((produto) => (
-                <Card
-                  key={produto.id}
-                  className="w-[300px] h-[400px] border-none bg-transparent text-white shadow-none hover:scale-105 transition-all"
-                >
-                  <CardContent className="space-y-2 p-0 border-none pt-10">
-                    <Image
-                      src={produto.imagem}
-                      alt={`${produto.nome}`}
-                      width={400}
-                      height={200}
-                      className="w-[500px] h-[200px] object-cover rounded"
-                    />
-                    <h2 className="text-2xl font-bold">{produto.nome}</h2>
-                    <p className="text-sm text-white/80">{produto.descricao}</p>
-                    <p className="font-semibold">
-                      {produto.preco.toLocaleString("pt-BR", {
-                        style: "currency",
-                        currency: "BRL",
-                      })}
-                    </p>
-                    <div className="pt-2">
-                      <Button
-                        onClick={() => addToCart(produto)}
-                        className="bg-transparent rounded-sm border-[1.5px] border-gray-300"
-                      >
-                        Adicionar
+              {isLoading
+                ? Array.from({ length: 6 }).map((_, index) => (
+                    <ProductCardSkeleton key={`massas-skeleton-${index}`} />
+                  ))
+                : massas?.map((produto) => (
+                    <Card
+                      key={produto.id}
+                      className="w-[300px] h-[400px] border-none bg-transparent text-white shadow-none hover:scale-105 transition-all"
+                    >
+                      <CardContent className="space-y-2 p-0 border-none pt-10">
                         <Image
-                          src={iconCartAdd}
-                          alt="Ícone adiconar carrinho"
-                          width={20}
+                          src={produto.imagem}
+                          alt={`${produto.nome}`}
+                          width={400}
+                          height={200}
+                          className="w-[500px] h-[200px] object-cover rounded"
                         />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                        <h2 className="text-2xl font-bold">{produto.nome}</h2>
+                        <p className="text-sm text-white/80">
+                          {produto.descricao}
+                        </p>
+                        <p className="font-semibold">
+                          {produto.preco.toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                          })}
+                        </p>
+                        <div className="pt-2">
+                          <Button
+                            onClick={() => addToCart(produto)}
+                            className="bg-transparent rounded-sm border-[1.5px] border-gray-300"
+                          >
+                            Adicionar
+                            <Image
+                              src={iconCartAdd}
+                              alt="Ícone adiconar carrinho"
+                              width={20}
+                            />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
             </div>
           </div>
         </section>
